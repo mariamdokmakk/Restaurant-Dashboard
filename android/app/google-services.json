@@ -1,0 +1,226 @@
+{
+  "project_info": {
+    "project_number": "43894038079",
+    "project_id": "food-delivery-f5251",
+    "storage_bucket": "food-delivery-f5251.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43894038079:android:e1fc3450403621150ce28a",
+        "android_client_info": {
+          "package_name": "com.example.cls_tasks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8gfVaq7bylweruNOtC4rroFs1OUVF2jE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "43894038079-66l9kkhtgcr7nt5sks49p7flha06ot00.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.clsTasks"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43894038079:android:6113a431f66676970ce28a",
+        "android_client_info": {
+          "package_name": "com.example.food_delivery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8gfVaq7bylweruNOtC4rroFs1OUVF2jE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "43894038079-66l9kkhtgcr7nt5sks49p7flha06ot00.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.clsTasks"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43894038079:android:759283abe004154f0ce28a",
+        "android_client_info": {
+          "package_name": "com.example.food_delivery_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8gfVaq7bylweruNOtC4rroFs1OUVF2jE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "43894038079-66l9kkhtgcr7nt5sks49p7flha06ot00.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.clsTasks"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43894038079:android:479d35f5482e3ee90ce28a",
+        "android_client_info": {
+          "package_name": "com.example.rest_dashboard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8gfVaq7bylweruNOtC4rroFs1OUVF2jE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "43894038079-66l9kkhtgcr7nt5sks49p7flha06ot00.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.clsTasks"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43894038079:android:b314a2f908d0729f0ce28a",
+        "android_client_info": {
+          "package_name": "com.example.restaurant_dashboard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8gfVaq7bylweruNOtC4rroFs1OUVF2jE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "43894038079-66l9kkhtgcr7nt5sks49p7flha06ot00.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.clsTasks"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43894038079:android:fc7bd379838eb7bd0ce28a",
+        "android_client_info": {
+          "package_name": "com.example.to_the_bone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA8gfVaq7bylweruNOtC4rroFs1OUVF2jE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "43894038079-cuodminu8tire1hj4vleg9v97j81b2h4.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "43894038079-66l9kkhtgcr7nt5sks49p7flha06ot00.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.clsTasks"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
