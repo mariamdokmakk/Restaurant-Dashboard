@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
-class AddNewItemCard extends StatelessWidget {
+class AddNewItemCard extends StatefulWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController itemNameController;
   final TextEditingController priceController;
@@ -13,6 +15,7 @@ class AddNewItemCard extends StatelessWidget {
   final VoidCallback onAddToMenu;
   final String? selectedImagePath;
   final Function(String?) onImageSelected;
+  final Function(String?) onImageUploaded;
 
   const AddNewItemCard({
     super.key,
@@ -26,17 +29,113 @@ class AddNewItemCard extends StatelessWidget {
     required this.onAddToMenu,
     this.selectedImagePath,
     required this.onImageSelected,
+    required this.onImageUploaded,
   });
 
-  //  Future<void> _pickImage() async {
-  //     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+  @override
+  State<AddNewItemCard> createState() => _AddNewItemCardState();
+}
 
-  //     if (picked != null) {
-  //       setState(() {
-  //         _selectedImagePath = picked.path;
-  //       });
-  //     }
+class _AddNewItemCardState extends State<AddNewItemCard> {
+  File? _imageFile;
+  String? _imageUrl;
+
+  final picker = ImagePicker();
+
+  // Future<void> pickImage() async {
+  //   final picked = await picker.pickImage(source: ImageSource.gallery);
+
+  //   if (picked != null) {
+  //     widget.onImageSelected(picked.path);
+
+  //     setState(() {
+  //       _imageFile = File(picked.path);
+  //     });
+
+  //     await _uploadImage(); // upload immediately after picking
   //   }
+  // }
+
+  Future<void> pickImage() async {
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+
+    if (picked != null) {
+      widget.onImageSelected(picked.path);
+
+      if (!mounted) return;
+
+      setState(() {
+        _imageFile = File(picked.path);
+      });
+
+      await _uploadImage();
+    }
+  }
+
+  // Future<void> _uploadImage() async {
+  //   if (_imageFile == null) return;
+
+  //   final cloudName = "dwhyg24zo";
+  //   final uploadPreset = "ml_default";
+
+  //   final url = Uri.parse(
+  //     "https://api.cloudinary.com/v1_1/$cloudName/image/upload",
+  //   );
+
+  //   final request = http.MultipartRequest("POST", url)
+  //     ..fields["upload_preset"] = uploadPreset
+  //     ..files.add(await http.MultipartFile.fromPath("file", _imageFile!.path));
+
+  //   final response = await request.send();
+
+  //   if (response.statusCode == 200) {
+  //     final responseData = await response.stream.bytesToString();
+  //     final jsonMap = jsonDecode(responseData);
+  //     final uploadedUrl = jsonMap["secure_url"];
+
+  //     setState(() {
+  //       _imageUrl = jsonMap["secure_url"]; // IMPORTANT
+  //     });
+  //     widget.onImageUploaded(uploadedUrl); // 🔥 SEND URL TO PARENT
+
+  //     print("Uploaded URL: $_imageUrl");
+  //   } else {
+  //     print("Upload failed (${response.statusCode})");
+  //   }
+  // }
+
+  Future<void> _uploadImage() async {
+    if (_imageFile == null) return;
+
+    final cloudName = "dwhyg24zo";
+    final uploadPreset = "ml_default";
+
+    final url = Uri.parse(
+      "https://api.cloudinary.com/v1_1/$cloudName/image/upload",
+    );
+
+    final request = http.MultipartRequest("POST", url)
+      ..fields["upload_preset"] = uploadPreset
+      ..files.add(await http.MultipartFile.fromPath("file", _imageFile!.path));
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      final responseData = await response.stream.bytesToString();
+      final jsonMap = jsonDecode(responseData);
+      final uploadedUrl = jsonMap["secure_url"];
+
+      if (!mounted) return; // ← ADD THIS
+
+      setState(() {
+        _imageUrl = uploadedUrl;
+      });
+
+      print("Uploaded URL = $uploadedUrl"); // Cloudinary return
+      widget.onImageUploaded(uploadedUrl);
+      print("Callback called"); // Confirm callback
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +154,7 @@ class AddNewItemCard extends StatelessWidget {
         ],
       ),
       child: Form(
-        key: formKey,
+        key: widget.formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -87,7 +186,7 @@ class AddNewItemCard extends StatelessWidget {
 
   Widget _buildItemNameField() {
     return TextFormField(
-      controller: itemNameController,
+      controller: widget.itemNameController,
       decoration: InputDecoration(
         labelText: 'Item Name',
         hintText: 'e.g., Classic Burger',
@@ -119,7 +218,7 @@ class AddNewItemCard extends StatelessWidget {
 
   Widget _buildCategoryDropdown() {
     return DropdownButtonFormField<String>(
-      value: selectedCategory,
+      value: widget.selectedCategory,
       decoration: InputDecoration(
         // labelText: 'Category',
         hintText: 'Select category',
@@ -141,10 +240,10 @@ class AddNewItemCard extends StatelessWidget {
         ),
         suffixIcon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
       ),
-      items: categories.map((String category) {
+      items: widget.categories.map((String category) {
         return DropdownMenuItem<String>(value: category, child: Text(category));
       }).toList(),
-      onChanged: onCategoryChanged,
+      onChanged: widget.onCategoryChanged,
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please select a category';
@@ -156,7 +255,7 @@ class AddNewItemCard extends StatelessWidget {
 
   Widget _buildPriceField() {
     return TextFormField(
-      controller: priceController,
+      controller: widget.priceController,
       keyboardType: TextInputType.number,
       decoration: InputDecoration(
         labelText: 'Price (\$)',
@@ -192,7 +291,7 @@ class AddNewItemCard extends StatelessWidget {
 
   Widget _buildDescriptionField() {
     return TextFormField(
-      controller: descriptionController,
+      controller: widget.descriptionController,
       maxLines: 3,
       decoration: InputDecoration(
         labelText: 'Description',
@@ -246,19 +345,19 @@ class AddNewItemCard extends StatelessWidget {
                 color: Colors.grey[100],
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: selectedImagePath != null
+                  color: widget.selectedImagePath != null
                       ? const Color(0xFF4CAF50)
                       : Colors.grey[300]!,
-                  width: selectedImagePath != null ? 2 : 1,
+                  width: widget.selectedImagePath != null ? 2 : 1,
                 ),
               ),
-              child: selectedImagePath != null
+              child: widget.selectedImagePath != null
                   ? Stack(
                       children: [
                         ClipRRect(
                           borderRadius: BorderRadius.circular(12),
                           child: Image.file(
-                            File(selectedImagePath!),
+                            File(widget.selectedImagePath!),
                             fit: BoxFit.cover,
                             width: double.infinity,
                             height: double.infinity,
@@ -278,7 +377,7 @@ class AddNewItemCard extends StatelessWidget {
                                 color: Colors.white,
                                 size: 20,
                               ),
-                              onPressed: () => onImageSelected(null),
+                              onPressed: () => widget.onImageSelected(null),
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                             ),
@@ -323,7 +422,7 @@ class AddNewItemCard extends StatelessWidget {
                 title: const Text('Choose from Gallery'),
                 onTap: () {
                   Navigator.pop(context);
-                  _pickImage(ImageSource.gallery);
+                  pickImage();
                 },
               ),
               ListTile(
@@ -331,7 +430,7 @@ class AddNewItemCard extends StatelessWidget {
                 title: const Text('Take a Photo'),
                 onTap: () {
                   Navigator.pop(context);
-                  _pickImage(ImageSource.camera);
+                  pickImage();
                 },
               ),
             ],
@@ -341,26 +440,12 @@ class AddNewItemCard extends StatelessWidget {
     );
   }
 
-  Future<void> _pickImage(ImageSource source) async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(
-      source: source,
-      maxWidth: 800,
-      maxHeight: 800,
-      imageQuality: 85,
-    );
-
-    if (image != null) {
-      onImageSelected(image.path);
-    }
-  }
-
   Widget _buildAddButton() {
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: onAddToMenu,
+        onPressed: widget.onAddToMenu,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF4CAF50),
           shape: RoundedRectangleBorder(

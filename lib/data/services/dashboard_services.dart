@@ -78,8 +78,8 @@ class DashboardServices {
         );
   }
 
-  //I may make these show the status of a year or a month not daily
-  static Stream<int> getDailyPendingOrdersCount() {
+  //field  --> pending ,completed ,canceled
+  static Stream<int> getDailyOrdersCount(String field) {
     return _db.collectionGroup(_orderCollection).snapshots().map((snapshot) {
       final now = DateTime.now();
 
@@ -90,45 +90,7 @@ class DashboardServices {
           .map((doc) => OrderItem.fromMap(doc.data()))
           .where(
             (order) =>
-                order.orderState == 'pending' &&
-                order.createdAt.isAfter(startOfDay) &&
-                order.createdAt.isBefore(endOfDay),
-          )
-          .length;
-    });
-  }
-
-  static Stream<int> getDailyCompletedOrdersCount() {
-    return _db.collectionGroup(_orderCollection).snapshots().map((snapshot) {
-      final now = DateTime.now();
-
-      final startOfDay = DateTime(now.year, now.month, now.day);
-      final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
-
-      return snapshot.docs
-          .map((doc) => OrderItem.fromMap(doc.data()))
-          .where(
-            (order) =>
-                order.orderState == 'completed' &&
-                order.createdAt.isAfter(startOfDay) &&
-                order.createdAt.isBefore(endOfDay),
-          )
-          .length;
-    });
-  }
-
-  static Stream<int> getDailyCanceledOrdersCount() {
-    return _db.collectionGroup(_orderCollection).snapshots().map((snapshot) {
-      final now = DateTime.now();
-
-      final startOfDay = DateTime(now.year, now.month, now.day);
-      final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
-
-      return snapshot.docs
-          .map((doc) => OrderItem.fromMap(doc.data()))
-          .where(
-            (order) =>
-                order.orderState == 'canceled' &&
+                order.orderState == field &&
                 order.createdAt.isAfter(startOfDay) &&
                 order.createdAt.isBefore(endOfDay),
           )
@@ -341,6 +303,45 @@ class DashboardServices {
             .asBroadcastStream();
       default:
         return Stream.value(0.0);
+    }
+  }
+
+  static Future<void> createStatusCollections() async {
+    DateTime now = DateTime.now();
+    int weekNum = ((now.day - 1) ~/ 7) + 1;
+    if (weekNum > 4) weekNum = 4;
+
+    final dayId = "${now.year}-${now.month}-${now.day}";
+    final weekId = "${now.year}-${now.month}-W$weekNum";
+    final monthId = "${now.year}-${now.month}";
+
+    //start of the Day
+    if (now.hour == 0) {
+      await _db
+          .collection(_restaurantCollection)
+          .doc(_restaurantId)
+          .collection(_dailyStatusCollection)
+          .doc(dayId)
+          .set({'id': dayId});
+    }
+    //start of the week
+    if (now.weekday == 1 && now.hour == 0) {
+      await _db
+          .collection(_restaurantCollection)
+          .doc(_restaurantId)
+          .collection(_weeklyEarningCollection)
+          .doc(weekId)
+          .set({'id': weekId});
+    }
+
+    //start of the month
+    if (now.day == 1 && now.hour == 0) {
+      await _db
+          .collection(_restaurantCollection)
+          .doc(_restaurantId)
+          .collection(_monthlyEarningCollection)
+          .doc(monthId)
+          .set({'id': monthId});
     }
   }
 }

@@ -21,6 +21,15 @@ class _AdminLayoutState extends State<AdminLayout> {
     // const OffersScreen(),
   ];
 
+  // @override
+  // void initState() {
+  //   super.initState();
+
+  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
+  //     await DashboardServices.syncDailyOrderCounts();
+  //   });
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

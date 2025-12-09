@@ -23,6 +23,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
   String? _selectedImagePath;
   final List<String> _categories = ["Burger", "Pizza", "Dessert", "Drink"];
   bool _isLoading = false;
+  String? _uploadedImageUrl;
 
   @override
   void dispose() {
@@ -99,16 +100,12 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final imageFile = _selectedImagePath != null
-          ? File(_selectedImagePath!)
-          : null;
-
       await MenuService.addMenuItem(
         name: _itemNameController.text.trim(),
         description: _descriptionController.text.trim(),
         category: _selectedCategory!,
         price: double.parse(_priceController.text.trim()),
-        imageFile: imageFile,
+        imageUrl: _uploadedImageUrl,
       );
 
       ScaffoldMessenger.of(
@@ -120,6 +117,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
       _descriptionController.clear();
       _selectedCategory = null;
       _selectedImagePath = null;
+      _uploadedImageUrl = null; 
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -146,6 +144,13 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
   void _onImageSelected(String? imagePath) {
     setState(() {
       _selectedImagePath = imagePath;
+    });
+  }
+
+  void _onImageUploaded(String? url) {
+    setState(() {
+      print("Parent received URL = $url");
+      _uploadedImageUrl = url; // 🔥 KEEP REAL URL FROM CLOUDINARY
     });
   }
 
@@ -183,6 +188,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                 categories: _categories,
                 selectedImagePath: _selectedImagePath,
                 onImageSelected: _onImageSelected,
+                onImageUploaded: _onImageUploaded, // 🔥 NEW
               ),
               const SizedBox(height: 24),
               MenuItemsSection(menuItems: data, onDeleteItem: _deleteMenuItem),
