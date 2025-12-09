@@ -68,22 +68,23 @@ Widget _buildBestSellerItem(MenuItem item) {
     ),
     child: Row(
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Image.network(
-            item.imageUrl,
-            width: 60,
-            height: 60,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => Container(
-              width: 60,
-              height: 60,
-              color: Colors.grey[300],
-              child: const Icon(Icons.fastfood, color: Colors.grey),
-            ),
-          ),
-        ),
-        const SizedBox(width: 16),
+        // ClipRRect(
+        //   borderRadius: BorderRadius.circular(10),
+        //   child:
+        //    Image.network(
+        //     item.imageUrl,
+        //     width: 60,
+        //     height: 60,
+        //     fit: BoxFit.cover,
+        //     errorBuilder: (context, error, stackTrace) => Container(
+        //       width: 60,
+        //       height: 60,
+        //       color: Colors.grey[300],
+        //       child: const Icon(Icons.fastfood, color: Colors.grey),
+        //     ),
+        //   ),
+        // ),
+        // const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

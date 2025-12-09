@@ -136,7 +136,7 @@ class Hashed {
   //         .doc(_restaurantId)
   //         .collection(_dailyStatusCollection)
   //         .doc(dayId)
-  //         .set({'id': dayId, 'pending': 0, 'canceled': 0, 'completed': 0});
+  //         .set({'id': dayId});
   //   }
   //   //start of the week
   //   if (now.weekday == 1 && now.hour == 0) {

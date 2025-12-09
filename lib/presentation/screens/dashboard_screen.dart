@@ -25,6 +25,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     'canceled',
   ];
 
+
+
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -721,7 +724,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(width: 16),
             Expanded(
               child: buildStreamStatCard<int>(
-                stream: DashboardServices.getDailyCanceledOrdersCount(),
+                stream: DashboardServices.getDailyOrdersCount("canceled"),
                 title: "Canceled",
                 icon: Icons.cancel_outlined,
                 iconColor: Colors.red,
@@ -736,7 +739,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Expanded(
               child: buildStreamStatCard<int>(
-                stream: DashboardServices.getDailyPendingOrdersCount(),
+                stream: DashboardServices.getDailyOrdersCount("pending"),
                 title: "Pending",
                 icon: Icons.access_time,
                 iconColor: Colors.orange,
@@ -747,7 +750,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             const SizedBox(width: 16),
             Expanded(
               child: buildStreamStatCard<int>(
-                stream: DashboardServices.getDailyCompletedOrdersCount(),
+                stream: DashboardServices.getDailyOrdersCount("completed"),
                 title: "Completed",
                 icon: Icons.check_circle_outline,
                 iconColor: Colors.green,

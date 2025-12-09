@@ -7,29 +7,29 @@ class MenuService {
   static final _db = FirebaseFirestore.instance;
   static const String _restaurantCollection = "Restaurant";
   static const String _restaurantId = "UFrCk69XBDrXFMOCuMvB";
-  static final cloudinary = CloudinaryPublic(
-    'dbyq4bc3', //Cloud name
-    'Restaurant_Dashboard', //Upload Preset name
-  );
+  // static final cloudinary = CloudinaryPublic(
+  //   'dbyq4bc3', //Cloud name
+  //   'Restaurant_Dashboard', //Upload Preset name
+  // );
 
-  static Future<String> uploadImageToCloudinary(File image) async {
-    final response = await cloudinary.uploadFile(
-      CloudinaryFile.fromFile(
-        image.path,
-        resourceType: CloudinaryResourceType.Image,
-        folder: "restaurant_menu",
-      ),
-    );
+  // static Future<String> uploadImageToCloudinary(File image) async {
+  //   final response = await cloudinary.uploadFile(
+  //     CloudinaryFile.fromFile(
+  //       image.path,
+  //       resourceType: CloudinaryResourceType.Image,
+  //       folder: "restaurant_menu",
+  //     ),
+  //   );
 
-    return response.secureUrl;
-  }
+  //   return response.secureUrl;
+  // }
 
   static Future<void> addMenuItem({
     required String name,
     required String description,
     required String category,
     required num price,
-    File? imageFile,
+    String? imageUrl,
   }) async {
     final docRef = _db
         .collection(_restaurantCollection)
@@ -39,11 +39,11 @@ class MenuService {
 
     final id = docRef.id;
 
-    String imageUrl = "";
+    // String imageUrl = "";
 
-    if (imageFile != null) {
-      imageUrl = await uploadImageToCloudinary(imageFile);
-    }
+    // if (imageFile != null) {
+    //   imageUrl = await uploadImageToCloudinary(imageFile);
+    // }
 
     final item = MenuItem(
       id: id,

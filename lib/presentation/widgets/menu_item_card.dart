@@ -27,37 +27,41 @@ class MenuItemCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
 
-            child: item.imageUrl.isNotEmpty
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      item.imageUrl,
-                      fit: BoxFit.cover,
-                      width: 50,
-                      height: 50,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey,
-                        );
-                      },
-                      loadingBuilder: (context, child, progress) {
-                        if (progress == null) return child;
-                        return const Center(
-                          child: SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                : const Icon(
-                    Icons.restaurant_menu,
-                    color: Color(0xFF4CAF50),
-                    size: 24,
-                  ),
+            child:
+            
+                // item.imageUrl.isNotEmpty
+                // ?
+                // ClipRRect(
+                //     borderRadius: BorderRadius.circular(8),
+                //     child: Image.network(
+                //       item.imageUrl,
+                //       fit: BoxFit.cover,
+                //       width: 50,
+                //       height: 50,
+                //       errorBuilder: (context, error, stackTrace) {
+                //         return const Icon(
+                //           Icons.image_not_supported,
+                //           color: Colors.grey,
+                //         );
+                //       },
+                //     loadingBuilder: (context, child, progress) {
+                //       if (progress == null) return child;
+                //       return const Center(
+                //         child: SizedBox(
+                //           width: 20,
+                //           height: 20,
+                //           child: CircularProgressIndicator(strokeWidth: 2),
+                //         ),
+                //       );
+                //     },
+                //   ),
+                // )
+                // :
+                const Icon(
+                  Icons.restaurant_menu,
+                  color: Color(0xFF4CAF50),
+                  size: 24,
+                ),
           ),
           const SizedBox(width: 12),
           Expanded(

@@ -91,7 +91,7 @@
 // }
 
 class AppUser {
-         String id;
+  String id;
   final String name;
   final String email;
   final String phone;
@@ -134,13 +134,8 @@ class AppUser {
       'email': email,
       'phone': phone,
       // 'gender': gender,
-      'location': {
-        'latitude': latitude,
-        'longitude': longitude,
-      },
+      'location': {'latitude': latitude, 'longitude': longitude},
       'profile_image': profileImage,
     };
   }
 }
-
-

@@ -4,20 +4,20 @@ class MenuItem {
   String description;
   String category;
   String id;
-  String imageUrl;
+  String? imageUrl;
   String name;
   num price;
-  num? newPrice;
+  num newPrice;
   num totalOrderCount;
 
   MenuItem({
     required this.description,
     required this.category,
     required this.id,
-    required this.imageUrl,
+    this.imageUrl,
     required this.name,
     required this.price,
-    this.newPrice,
+    this.newPrice = 0,
     required this.totalOrderCount,
   });
 
@@ -26,11 +26,11 @@ class MenuItem {
       'description': description,
       'category': category,
       'id': id,
-      'imageUrl': imageUrl,        // FIXED
+      'imageUrl': imageUrl, // FIXED
       'name': name,
       'price': price,
       'newPrice': newPrice,
-      'totalOrderCount': totalOrderCount,  // FIXED
+      'totalOrderCount': totalOrderCount, // FIXED
     };
   }
 
@@ -39,14 +39,13 @@ class MenuItem {
       description: map['description'] ?? "",
       category: map['category'] ?? "",
       id: map['id'] ?? "",
-      imageUrl: map['imageUrl'] ?? "",        // FIXED
+      imageUrl: map['imageUrl'], // FIXED
       name: map['name'] ?? "",
       price: map['price'] ?? 0,
-      newPrice: map['newPrice'],
-      totalOrderCount: map['totalOrderCount'] ?? 0,   // FIXED
+      newPrice: map['newPrice'] ?? 0,
+      totalOrderCount: map['totalOrderCount'] ?? 0, // FIXED
     );
   }
-
 
   factory MenuItem.fromFirestore(QueryDocumentSnapshot doc) {
     final map = doc.data() as Map<String, dynamic>;
@@ -56,9 +55,9 @@ class MenuItem {
       name: map['name'] ?? "",
       category: map['category'] ?? "",
       description: map['description'] ?? "",
-      imageUrl: map['imageUrl'] ?? "",
+      imageUrl: map['imageUrl'],
       price: map['price'] ?? 0,
-      newPrice: map['newPrice'],
+      newPrice: map['newPrice'] ?? 0.0,
       totalOrderCount: map['totalOrderCount'] ?? 0,
     );
   }
