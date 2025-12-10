@@ -60,22 +60,28 @@ class DashboardServices {
 
   //get all orders and display them in dashboard
   static Stream<List<OrderItem>> getOrders() {
-    _db.collectionGroup("Orders").get().then((s) {
-      print("FOUND ORDERS: ${s.docs.length}");
+    final now = DateTime.now();
+
+    final startOfDay = DateTime(now.year, now.month, now.day);
+    final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    return _db.collectionGroup(_orderCollection).snapshots().map((snapshot) {
+      // Convert to list
+      List<OrderItem> orders = snapshot.docs
+          .map((doc) => OrderItem.fromMap(doc.data()))
+          .where(
+            (order) =>
+                order.orderState != 'canceled' &&
+                order.orderState != 'completed' &&
+                order.createdAt.isAfter(startOfDay) &&
+                order.createdAt.isBefore(endOfDay),
+          )
+          .toList();
+
+      //  Sort from latest to earliest
+      orders.sort((b, a) => b.createdAt.compareTo(a.createdAt));
+      return orders;
     });
-    return _db
-        .collectionGroup(_orderCollection)
-        .snapshots()
-        .map(
-          (snapshot) => snapshot.docs
-              .map((doc) => OrderItem.fromMap(doc.data()))
-              .where(
-                (order) =>
-                    (order.orderState != 'canceled' &&
-                    order.orderState != 'completed'),
-              )
-              .toList(),
-        );
   }
 
   //field  --> pending ,completed ,canceled
@@ -110,6 +116,8 @@ class DashboardServices {
     int pending = 0;
     int canceled = 0;
     int completed = 0;
+    //will handle count
+    int count = 0;
 
     for (var doc in snapshot.docs) {
       final order = OrderItem.fromMap(doc.data());
@@ -117,7 +125,11 @@ class DashboardServices {
       // check date
       if (order.createdAt.isAfter(startOfDay) &&
           order.createdAt.isBefore(endOfDay)) {
-        if (order.orderState == "pending") pending++;
+        if (order.orderState == "pending") {
+          pending++;
+          count++;
+        }
+
         if (order.orderState == "canceled") canceled++;
         if (order.orderState == "completed") completed++;
       }
@@ -135,6 +147,7 @@ class DashboardServices {
       "pending": pending,
       "canceled": canceled,
       "completed": completed,
+      "ordersCount": count,
     }, SetOptions(merge: true));
   }
 
@@ -245,34 +258,92 @@ class DashboardServices {
   /////////////////////////charts//////////////////////////////////////
 
   // static Stream<List<Map<String, dynamic>>> getWeeklyStats() {
-  //   final  docs = _db
-  //       .collection(_dailyStatusCollection)
+  //   return _db
+  //       .collection("Restaurant")
+  //       .doc(_restaurantId)
+  //       .collection("DailyStatus")
   //       .orderBy(FieldPath.documentId)
-  //       .limit(7)
   //       .snapshots()
-  //       .map((snapshot) => snapshot.docs.map((d) => d.data()).toList());
-  //   while (docs.length < 7) {
-  //     docs.insert(0, {"completed": 0, "pending": 0, "canceled": 0});
-  //   }
-  //   return docs;
-  // }
+  //       .map((snapshot) {
+  //         print("FIRESTORE DOC COUNT: ${snapshot.docs.length}");
 
+  //         // If no data at all, return 7 zeros
+  //         if (snapshot.docs.isEmpty) {
+  //           return List.generate(
+  //             7,
+  //             (_) => {"completed": 0, "pending": 0, "canceled": 0},
+  //           );
+  //         }
+
+  //         // Take LAST 7 documents only
+  //         final lastDocs = snapshot.docs.length > 7
+  //             ? snapshot.docs.sublist(snapshot.docs.length - 7)
+  //             : snapshot.docs;
+
+  //         // Convert to chart format
+  //         final result = lastDocs.map((doc) {
+  //           final data = doc.data();
+  //           print("DOC USED: ${doc.id} → $data");
+
+  //           return {
+  //             "completed": (data['completed'] ?? 0),
+  //             "pending": (data['pending'] ?? 0),
+  //             "canceled": (data['canceled'] ?? 0),
+  //           };
+  //         }).toList();
+
+  //         // If less than 7 docs, pad the beginning with zeros
+  //         while (result.length < 7) {
+  //           result.insert(0, {"completed": 0, "pending": 0, "canceled": 0});
+  //         }
+
+  //         return result;
+  //       });
+  // }
   static Stream<List<Map<String, dynamic>>> getWeeklyStats() {
-    return _db.collection(_dailyStatusCollection).limit(7).snapshots().map((
-      snapshot,
-    ) {
-      final List<Map<String, dynamic>> data = snapshot.docs
-          .map((d) => d.data())
-          .toList();
-      // Sort manually (if data has a 'date' field)
-      data.sort((a, b) => a['date'].compareTo(b['date']));
-      while (data.length < 7) {
-        data.insert(0, {"completed": 0, "pending": 0, "canceled": 0});
-      }
-      return data;
-    });
+    return _db
+        .collection("Restaurant")
+        .doc(_restaurantId)
+        .collection("DailyStatus")
+        .snapshots()
+        .map((snapshot) {
+          print("FIRESTORE DOC COUNT: ${snapshot.docs.length}");
+
+          final now = DateTime.now();
+
+          // Week starts on Saturday
+          final startOfWeek = now.subtract(
+            Duration(days: (now.weekday + 1) % 7),
+          );
+          final weekDates = List.generate(7, (i) {
+            final day = startOfWeek.add(Duration(days: i));
+            return "${day.year}-${day.month}-${day.day}";
+          });
+
+          // Map Firestore docs
+          final dataMap = {for (var doc in snapshot.docs) doc.id: doc.data()};
+
+          // Build final list with zeros for missing days
+          final result = weekDates.map((dateId) {
+            if (dataMap.containsKey(dateId)) {
+              final data = dataMap[dateId]!;
+              print("DAY $dateId → $data");
+              return {
+                "completed": (data['completed'] ?? 0),
+                "pending": (data['pending'] ?? 0),
+                "canceled": (data['canceled'] ?? 0),
+              };
+            } else {
+              print("DAY $dateId → missing, fill 0");
+              return {"completed": 0, "pending": 0, "canceled": 0};
+            }
+          }).toList();
+
+          return result;
+        });
   }
 
+  //////////////////////////still handling////////////////////////////////////////
   static Stream<double?> getEarningsStream(
     int filter, {
     int? weekNum,

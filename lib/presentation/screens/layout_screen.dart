@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:rest_dashboard/data/services/dashboard_services.dart';
 import 'package:rest_dashboard/presentation/screens/menu_screen.dart';
@@ -13,6 +16,7 @@ class AdminLayout extends StatefulWidget {
 
 class _AdminLayoutState extends State<AdminLayout> {
   int _selectedIndex = 0;
+  StreamSubscription? _orderListener;
 
   // Define your screens here
   final List<Widget> _screens = [
@@ -29,6 +33,26 @@ class _AdminLayoutState extends State<AdminLayout> {
   //     await DashboardServices.syncDailyOrderCounts();
   //   });
   // }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _orderListener = FirebaseFirestore.instance
+          .collectionGroup("Orders")
+          .snapshots()
+          .listen((_) {
+            DashboardServices.syncDailyOrderCounts();
+          });
+    });
+  }
+
+  @override
+  void dispose() {
+    _orderListener?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
