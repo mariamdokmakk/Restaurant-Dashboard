@@ -4,6 +4,7 @@ class DailyStatus {
   final int completed;
   final int canceled;
   final int pending;
+  // final int ordersCount;
 
   DailyStatus({
     required this.id,
@@ -11,6 +12,7 @@ class DailyStatus {
     this.completed = 0,
     this.canceled = 0,
     this.pending = 0,
+    // this.ordersCount = 0,
   });
 
   Map<String, dynamic> toMap() {
@@ -20,6 +22,7 @@ class DailyStatus {
       'completed': completed,
       'canceled': canceled,
       'pending': pending,
+      // 'ordersCount': ordersCount,
     };
   }
 
@@ -30,6 +33,7 @@ class DailyStatus {
       completed: (map['completed'] ?? 0) as int,
       canceled: (map['canceled'] ?? 0) as int,
       pending: (map['pending'] ?? 0) as int,
+      // ordersCount: (map['ordersCount'] ?? 0) as int,
     );
   }
 }

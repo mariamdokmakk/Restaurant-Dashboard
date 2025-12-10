@@ -117,7 +117,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
       _descriptionController.clear();
       _selectedCategory = null;
       _selectedImagePath = null;
-      _uploadedImageUrl = null; 
+      _uploadedImageUrl = null;
     } catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -182,13 +182,7 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
                 itemNameController: _itemNameController,
                 priceController: _priceController,
                 descriptionController: _descriptionController,
-                selectedCategory: _selectedCategory,
-                onCategoryChanged: _onCategoryChanged,
-                onAddToMenu: _addToMenu,
                 categories: _categories,
-                selectedImagePath: _selectedImagePath,
-                onImageSelected: _onImageSelected,
-                onImageUploaded: _onImageUploaded, // 🔥 NEW
               ),
               const SizedBox(height: 24),
               MenuItemsSection(menuItems: data, onDeleteItem: _deleteMenuItem),

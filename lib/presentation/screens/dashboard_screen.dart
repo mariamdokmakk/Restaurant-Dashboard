@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:rest_dashboard/data/models/order.dart';
@@ -24,9 +23,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     'completed',
     'canceled',
   ];
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +52,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildOrderItem(OrderItem order) {
+  String _timeAgo(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inSeconds < 60) {
+      return "just now";
+    } else if (diff.inMinutes < 60) {
+      return "${diff.inMinutes} min ago";
+    } else if (diff.inHours < 24) {
+      return "${diff.inHours} hours ago";
+    } else if (diff.inDays == 1) {
+      return "yesterday";
+    } else {
+      return "${diff.inDays} days ago";
+    }
+  }
+
+  Widget _buildOrderItem(OrderItem order, int count) {
     Color statusColor = _getStatusColor(order.orderState);
     IconData statusIcon = _getStatusIcon(order.orderState);
 
@@ -75,7 +88,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               RichText(
                 text: TextSpan(
-                  text: "${order.orderId.toString()}  ",
+                  text: "Order:$count  ",
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
@@ -83,7 +96,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                   children: [
                     TextSpan(
-                      text: '${order.createdAt.minute} min',
+                      text: _timeAgo(order.createdAt),
                       style: TextStyle(
                         fontWeight: FontWeight.normal,
                         color: Colors.grey[500],
@@ -422,7 +435,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
-            maxY: 120,
+            maxY: 60,
             barTouchData: BarTouchData(
               enabled: true,
               touchCallback: (FlTouchEvent event, barTouchResponse) {
@@ -526,19 +539,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     );
                     switch (value.toInt()) {
                       case 0:
-                        return Text('Mon', style: style);
-                      case 1:
-                        return Text('Tue', style: style);
-                      case 2:
-                        return Text('Wed', style: style);
-                      case 3:
-                        return Text('Thu', style: style);
-                      case 4:
-                        return Text('Fri', style: style);
-                      case 5:
                         return Text('Sat', style: style);
-                      case 6:
+                      case 1:
                         return Text('Sun', style: style);
+                      case 2:
+                        return Text('Mon', style: style);
+                      case 3:
+                        return Text('Tue', style: style);
+                      case 4:
+                        return Text('Wed', style: style);
+                      case 5:
+                        return Text('Thu', style: style);
+                      case 6:
+                        return Text('Fri', style: style);
                       default:
                         return const Text('');
                     }
@@ -980,7 +993,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 itemCount: data.length,
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: 12),
-                itemBuilder: (context, index) => _buildOrderItem(data[index]),
+                itemBuilder: (context, index) =>
+                    _buildOrderItem(data[index], 0),
               );
             },
           ),
