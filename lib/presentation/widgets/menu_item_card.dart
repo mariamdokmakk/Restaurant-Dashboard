@@ -17,7 +17,7 @@ class MenuItemCard extends StatelessWidget {
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             width: 50,
@@ -27,41 +27,27 @@ class MenuItemCard extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
             ),
 
-            child:
-            
-                // item.imageUrl.isNotEmpty
-                // ?
-                // ClipRRect(
-                //     borderRadius: BorderRadius.circular(8),
-                //     child: Image.network(
-                //       item.imageUrl,
-                //       fit: BoxFit.cover,
-                //       width: 50,
-                //       height: 50,
-                //       errorBuilder: (context, error, stackTrace) {
-                //         return const Icon(
-                //           Icons.image_not_supported,
-                //           color: Colors.grey,
-                //         );
-                //       },
-                //     loadingBuilder: (context, child, progress) {
-                //       if (progress == null) return child;
-                //       return const Center(
-                //         child: SizedBox(
-                //           width: 20,
-                //           height: 20,
-                //           child: CircularProgressIndicator(strokeWidth: 2),
-                //         ),
-                //       );
-                //     },
-                //   ),
-                // )
-                // :
-                const Icon(
-                  Icons.restaurant_menu,
-                  color: Color(0xFF4CAF50),
-                  size: 24,
-                ),
+            child: item.imageUrl != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.network(
+                      item.imageUrl!,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        width: 60,
+                        height: 60,
+                        color: Colors.grey[300],
+                        child: const Icon(Icons.fastfood, color: Colors.grey),
+                      ),
+                    ),
+                  )
+                : const Icon(
+                    Icons.restaurant_menu,
+                    color: Color(0xFF4CAF50),
+                    size: 24,
+                  ),
           ),
           const SizedBox(width: 12),
           Expanded(

@@ -62,8 +62,8 @@ class CreateOfferCard extends StatelessWidget {
             const SizedBox(height: 20),
             _buildTitleField(),
             const SizedBox(height: 16),
-            _buildPromoCodeField(),
-            const SizedBox(height: 16),
+            // _buildPromoCodeField(),
+            // const SizedBox(height: 16),
             _buildCategoryDropdown(),
             const SizedBox(height: 16),
             _buildDiscountField(),
@@ -99,7 +99,10 @@ class CreateOfferCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFFF9800), width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -110,41 +113,44 @@ class CreateOfferCard extends StatelessWidget {
     );
   }
 
-  Widget _buildPromoCodeField() {
-    return TextFormField(
-      controller: promoCodeController,
-      textCapitalization: TextCapitalization.characters,
-      decoration: InputDecoration(
-        labelText: 'Promo Code',
-        hintText: 'e.g., WEEKEND25',
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.grey),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFFF9800), width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter promo code';
-        }
-        return null;
-      },
-    );
-  }
+  // Widget _buildPromoCodeField() {
+  //   return TextFormField(
+  //     controller: promoCodeController,
+  //     textCapitalization: TextCapitalization.characters,
+  //     decoration: InputDecoration(
+  //       labelText: 'Promo Code',
+  //       hintText: 'e.g., WEEKEND25',
+  //       border: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(12),
+  //         borderSide: const BorderSide(color: Colors.grey),
+  //       ),
+  //       enabledBorder: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(12),
+  //         borderSide: const BorderSide(color: Colors.grey),
+  //       ),
+  //       focusedBorder: OutlineInputBorder(
+  //         borderRadius: BorderRadius.circular(12),
+  //         borderSide: const BorderSide(color: Color(0xFFFF9800), width: 2),
+  //       ),
+  //       contentPadding: const EdgeInsets.symmetric(
+  //         horizontal: 16,
+  //         vertical: 16,
+  //       ),
+  //     ),
+  //     validator: (value) {
+  //       if (value == null || value.isEmpty) {
+  //         return 'Please enter promo code';
+  //       }
+  //       return null;
+  //     },
+  //   );
+  // }
 
   Widget _buildCategoryDropdown() {
     return DropdownButtonFormField<String>(
       value: selectedCategory,
       decoration: InputDecoration(
-        labelText: 'Category',
+        // labelText: 'Category',
         hintText: 'Select category',
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -158,14 +164,14 @@ class CreateOfferCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFFF9800), width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         suffixIcon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
       ),
       items: categories.map((String category) {
-        return DropdownMenuItem<String>(
-          value: category,
-          child: Text(category),
-        );
+        return DropdownMenuItem<String>(value: category, child: Text(category));
       }).toList(),
       onChanged: onCategoryChanged,
       validator: (value) {
@@ -196,7 +202,10 @@ class CreateOfferCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFFF9800), width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -234,7 +243,10 @@ class CreateOfferCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFFF9800), width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         suffixIcon: const Icon(Icons.calendar_today, color: Colors.grey),
       ),
       validator: (value) {
@@ -266,7 +278,10 @@ class CreateOfferCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFFF9800), width: 2),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
         suffixIcon: const Icon(Icons.calendar_today, color: Colors.grey),
       ),
       validator: (value) {
@@ -347,11 +362,7 @@ class CreateOfferCard extends StatelessWidget {
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.local_offer,
-              color: Colors.white,
-              size: 20,
-            ),
+            Icon(Icons.local_offer, color: Colors.white, size: 20),
             SizedBox(width: 8),
             Text(
               'Create Offer',
@@ -367,4 +378,3 @@ class CreateOfferCard extends StatelessWidget {
     );
   }
 }
-

@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rest_dashboard/data/models/daily_status.dart';
 import 'package:rest_dashboard/data/models/menu_item.dart';
 import 'package:rest_dashboard/data/models/order.dart';
-import 'package:intl/intl.dart';
 
 class DashboardServices {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -49,7 +48,7 @@ class DashboardServices {
         .doc(_restaurantId)
         .collection(_menuCollection)
         .orderBy('totalOrderCount', descending: true)
-        .limit(10)
+        .limit(5)
         .snapshots();
 
     return queryStream.map(
@@ -104,7 +103,6 @@ class DashboardServices {
     });
   }
 
-  //I can remove this and just increment in the get pending ,completed ,canceled functions
   static Future<void> syncDailyOrderCounts() async {
     final now = DateTime.now();
     final startOfDay = DateTime(now.year, now.month, now.day);
@@ -116,8 +114,6 @@ class DashboardServices {
     int pending = 0;
     int canceled = 0;
     int completed = 0;
-    //will handle count
-    int count = 0;
 
     for (var doc in snapshot.docs) {
       final order = OrderItem.fromMap(doc.data());
@@ -125,13 +121,12 @@ class DashboardServices {
       // check date
       if (order.createdAt.isAfter(startOfDay) &&
           order.createdAt.isBefore(endOfDay)) {
-        if (order.orderState == "pending") {
-          pending++;
-          count++;
-        }
-
+        if (order.orderState == "pending") pending++;
         if (order.orderState == "canceled") canceled++;
-        if (order.orderState == "completed") completed++;
+        if (order.orderState == "completed") {
+          completed++;
+          await _addtoTotalOrderCount(order);
+        }
       }
     }
 
@@ -147,7 +142,6 @@ class DashboardServices {
       "pending": pending,
       "canceled": canceled,
       "completed": completed,
-      "ordersCount": count,
     }, SetOptions(merge: true));
   }
 
@@ -255,51 +249,17 @@ class DashboardServices {
         }, SetOptions(merge: true));
   }
 
-  /////////////////////////charts//////////////////////////////////////
+  static Future<void> _addtoTotalOrderCount(OrderItem order) async {
+    for (var item in order.items) {
+      await _db
+          .collection(_restaurantCollection)
+          .doc(_restaurantId)
+          .collection(_menuCollection)
+          .doc(item["menuItemId"])
+          .update({"totalOrderCount": FieldValue.increment(item["quantity"])});
+    }
+  }
 
-  // static Stream<List<Map<String, dynamic>>> getWeeklyStats() {
-  //   return _db
-  //       .collection("Restaurant")
-  //       .doc(_restaurantId)
-  //       .collection("DailyStatus")
-  //       .orderBy(FieldPath.documentId)
-  //       .snapshots()
-  //       .map((snapshot) {
-  //         print("FIRESTORE DOC COUNT: ${snapshot.docs.length}");
-
-  //         // If no data at all, return 7 zeros
-  //         if (snapshot.docs.isEmpty) {
-  //           return List.generate(
-  //             7,
-  //             (_) => {"completed": 0, "pending": 0, "canceled": 0},
-  //           );
-  //         }
-
-  //         // Take LAST 7 documents only
-  //         final lastDocs = snapshot.docs.length > 7
-  //             ? snapshot.docs.sublist(snapshot.docs.length - 7)
-  //             : snapshot.docs;
-
-  //         // Convert to chart format
-  //         final result = lastDocs.map((doc) {
-  //           final data = doc.data();
-  //           print("DOC USED: ${doc.id} → $data");
-
-  //           return {
-  //             "completed": (data['completed'] ?? 0),
-  //             "pending": (data['pending'] ?? 0),
-  //             "canceled": (data['canceled'] ?? 0),
-  //           };
-  //         }).toList();
-
-  //         // If less than 7 docs, pad the beginning with zeros
-  //         while (result.length < 7) {
-  //           result.insert(0, {"completed": 0, "pending": 0, "canceled": 0});
-  //         }
-
-  //         return result;
-  //       });
-  // }
   static Stream<List<Map<String, dynamic>>> getWeeklyStats() {
     return _db
         .collection("Restaurant")
@@ -343,76 +303,38 @@ class DashboardServices {
         });
   }
 
-  //////////////////////////still handling////////////////////////////////////////
-  static Stream<double?> getEarningsStream(
-    int filter, {
-    int? weekNum,
-    int? monthNum,
-  }) {
-    DateTime now = DateTime.now();
-    switch (filter) {
-      case 0: // This Month - show weekly earnings
-        return Stream.fromIterable(List.generate(4, (i) => i + 1))
-            .asyncMap(
-              (week) =>
-                  DashboardServices.getWeekEarnings(week, now.month).first,
-            )
-            .asBroadcastStream();
-      case 1: // This Year - show monthly earnings
-        return Stream.fromIterable(List.generate(12, (i) => i + 1))
-            .asyncMap(
-              (month) =>
-                  DashboardServices.getMonthEarnings(now.year, month).first,
-            )
-            .asBroadcastStream();
-      case 2: // Last Year - show monthly earnings
-        return Stream.fromIterable(List.generate(12, (i) => i + 1))
-            .asyncMap(
-              (month) =>
-                  DashboardServices.getMonthEarnings(now.year - 1, month).first,
-            )
-            .asBroadcastStream();
-      default:
-        return Stream.value(0.0);
-    }
-  }
+  /////////////////////////coming soon//////////////////////////////////////
 
-  static Future<void> createStatusCollections() async {
-    DateTime now = DateTime.now();
-    int weekNum = ((now.day - 1) ~/ 7) + 1;
-    if (weekNum > 4) weekNum = 4;
-
-    final dayId = "${now.year}-${now.month}-${now.day}";
-    final weekId = "${now.year}-${now.month}-W$weekNum";
-    final monthId = "${now.year}-${now.month}";
-
-    //start of the Day
-    if (now.hour == 0) {
-      await _db
-          .collection(_restaurantCollection)
-          .doc(_restaurantId)
-          .collection(_dailyStatusCollection)
-          .doc(dayId)
-          .set({'id': dayId});
-    }
-    //start of the week
-    if (now.weekday == 1 && now.hour == 0) {
-      await _db
-          .collection(_restaurantCollection)
-          .doc(_restaurantId)
-          .collection(_weeklyEarningCollection)
-          .doc(weekId)
-          .set({'id': weekId});
-    }
-
-    //start of the month
-    if (now.day == 1 && now.hour == 0) {
-      await _db
-          .collection(_restaurantCollection)
-          .doc(_restaurantId)
-          .collection(_monthlyEarningCollection)
-          .doc(monthId)
-          .set({'id': monthId});
-    }
-  }
+  // static Stream<double?> getEarningsStream(
+  //   int filter, {
+  //   int? weekNum,
+  //   int? monthNum,
+  // }) {
+  //   DateTime now = DateTime.now();
+  //   switch (filter) {
+  //     case 0: // This Month - show weekly earnings
+  //       return Stream.fromIterable(List.generate(4, (i) => i + 1))
+  //           .asyncMap(
+  //             (week) =>
+  //                 DashboardServices.getWeekEarnings(week, now.month).first,
+  //           )
+  //           .asBroadcastStream();
+  //     case 1: // This Year - show monthly earnings
+  //       return Stream.fromIterable(List.generate(12, (i) => i + 1))
+  //           .asyncMap(
+  //             (month) =>
+  //                 DashboardServices.getMonthEarnings(now.year, month).first,
+  //           )
+  //           .asBroadcastStream();
+  //     case 2: // Last Year - show monthly earnings
+  //       return Stream.fromIterable(List.generate(12, (i) => i + 1))
+  //           .asyncMap(
+  //             (month) =>
+  //                 DashboardServices.getMonthEarnings(now.year - 1, month).first,
+  //           )
+  //           .asBroadcastStream();
+  //     default:
+  //       return Stream.value(0.0);
+  //   }
+  // }
 }

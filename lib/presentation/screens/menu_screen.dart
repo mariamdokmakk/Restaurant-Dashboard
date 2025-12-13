@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:rest_dashboard/data/services/menu_services.dart';
 import 'package:rest_dashboard/presentation/widgets/add_new_item_card.dart';
@@ -33,67 +31,6 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
     super.dispose();
   }
 
-  // void _addToMenu() {
-  //   if (_formKey.currentState!.validate()) {
-  //     final newItem = MenuItem(
-  //       name: _itemNameController.text.trim(),
-  //       category: _selectedCategory!,
-  //       price: double.parse(_priceController.text.trim()),
-  //       description: _descriptionController.text.trim(),
-  //       imageUrl: _selectedImagePath ?? "", //will be edited
-  //     );
-
-  //     setState(() {
-  //       MenuService.addMenuItem(
-  //         name: newItem.name,
-  //         description: newItem.description,
-  //         category: newItem.category,
-  //         price: newItem.price,
-  //       );
-  //     });
-
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(const SnackBar(content: Text('Item added to menu')));
-
-  //     _itemNameController.clear();
-  //     _priceController.clear();
-  //     _descriptionController.clear();
-  //     setState(() {
-  //       _selectedCategory = null;
-  //       _selectedImagePath = null;
-  //     });
-  //   }
-  // }
-
-  // void _addToMenu() async {
-  //   if (_formKey.currentState!.validate()) {
-  //     final imageFile = _selectedImagePath != null
-  //         ? File(_selectedImagePath!)
-  //         : null;
-
-  //     await MenuService.addMenuItem(
-  //       name: _itemNameController.text.trim(),
-  //       description: _descriptionController.text.trim(),
-  //       category: _selectedCategory!,
-  //       price: double.parse(_priceController.text.trim()),
-  //       imageFile: imageFile, // ✅ Cloudinary upload here
-  //     );
-
-  //     ScaffoldMessenger.of(
-  //       context,
-  //     ).showSnackBar(const SnackBar(content: Text('Item added to menu')));
-
-  //     _itemNameController.clear();
-  //     _priceController.clear();
-  //     _descriptionController.clear();
-
-  //     setState(() {
-  //       _selectedCategory = null;
-  //       _selectedImagePath = null;
-  //     });
-  //   }
-  // }
   void _addToMenu() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -121,7 +58,10 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ).showSnackBar(const SnackBar(content: Text("Item name already exists")));
+      // ScaffoldMessenger.of(
+      //   context,
+      // ).showSnackBar(SnackBar(content: Text('Error: $e')));
     }
 
     setState(() => _isLoading = false);

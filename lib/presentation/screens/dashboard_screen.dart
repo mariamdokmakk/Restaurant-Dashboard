@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:rest_dashboard/data/models/menu_item.dart';
 import 'package:rest_dashboard/data/models/order.dart';
 import 'package:rest_dashboard/data/services/dashboard_services.dart';
-import 'package:rest_dashboard/presentation/widgets/buildBestSellingSection.dart';
 import 'package:rest_dashboard/presentation/widgets/buildStreamStatCard.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -13,7 +13,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  int _selectedChartFilter = 0;
+  // int _selectedChartFilter = 0;
 
   int _touchedIndex = -1; // For Bar Chart
   final List<String> _statusOptions = [
@@ -35,8 +35,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
           const SizedBox(height: 20),
           _buildTotalSalesCard(),
           const SizedBox(height: 20),
-          _buildSalesChartCard(),
-          const SizedBox(height: 20),
+          // _buildSalesChartCard(),
+          // const SizedBox(height: 20),
           _buildOrdersOverviewCard(),
           const SizedBox(height: 20),
           _buildOrderControlSection(),
@@ -49,332 +49,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
           // const SizedBox(height: 20),
         ],
       ),
-    );
-  }
-
-  String _timeAgo(DateTime date) {
-    final now = DateTime.now();
-    final diff = now.difference(date);
-
-    if (diff.inSeconds < 60) {
-      return "just now";
-    } else if (diff.inMinutes < 60) {
-      return "${diff.inMinutes} min ago";
-    } else if (diff.inHours < 24) {
-      return "${diff.inHours} hours ago";
-    } else if (diff.inDays == 1) {
-      return "yesterday";
-    } else {
-      return "${diff.inDays} days ago";
-    }
-  }
-
-  Widget _buildOrderItem(OrderItem order, int count) {
-    Color statusColor = _getStatusColor(order.orderState);
-    IconData statusIcon = _getStatusIcon(order.orderState);
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FA),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade100),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              RichText(
-                text: TextSpan(
-                  text: "Order:$count  ",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                    fontSize: 14,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: _timeAgo(order.createdAt),
-                      style: TextStyle(
-                        fontWeight: FontWeight.normal,
-                        color: Colors.grey[500],
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Text(
-                "\$${order.totalPrice.toStringAsFixed(2)}",
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          FutureBuilder<String>(
-            future: DashboardServices.getUserName(order.userId),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Text("Loading...");
-              }
-
-              if (snapshot.hasError) {
-                return const Text("Error");
-              }
-
-              final name = snapshot.data ?? "Unknown";
-
-              return Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              );
-            },
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(statusIcon, size: 14, color: statusColor),
-                    const SizedBox(width: 6),
-                    Text(
-                      order.orderState,
-                      style: TextStyle(
-                        color: statusColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade300),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: order.orderState,
-                      icon: Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Colors.grey[400],
-                      ),
-                      isExpanded: true,
-                      style: const TextStyle(
-                        color: Colors.black87,
-                        fontSize: 14,
-                      ),
-                      onChanged: (String? newValue) async {
-                        if (_statusOptions.toSet().length ==
-                            _statusOptions.length)
-                          print('Duplicate values found in status options');
-                        if (newValue == null) return;
-                        setState(() {
-                          order.orderState = newValue;
-                        });
-                        await DashboardServices.updateOrderDailyStatus(
-                          id: order.id,
-                          userId: order.userId,
-                          orderState: newValue,
-                        );
-                        await DashboardServices.syncDailyOrderCounts();
-                        if (newValue == "completed") {
-                          await DashboardServices.addToEarnings(
-                            order.totalPrice,
-                          );
-                        }
-                      },
-                      items: _statusOptions
-                          .map<DropdownMenuItem<String>>(
-                            (String value) => DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // --- Stats and Charts (Unchanged) ---
-  List<FlSpot> _getChartData() {
-    switch (_selectedChartFilter) {
-      case 0:
-        return const [
-          FlSpot(0, 12000),
-          FlSpot(1, 14500),
-          FlSpot(2, 17500),
-          FlSpot(3, 16500),
-        ];
-      case 1:
-        return const [
-          FlSpot(0, 15000),
-          FlSpot(1, 18500),
-          FlSpot(2, 22000),
-          FlSpot(3, 23500),
-        ];
-      case 2:
-        return const [
-          FlSpot(0, 10000),
-          FlSpot(1, 16000),
-          FlSpot(2, 13000),
-          FlSpot(3, 11000),
-        ];
-      default:
-        return const [];
-    }
-  }
-
-  Widget _buildLineChart() {
-    final stream = DashboardServices.getEarningsStream(_selectedChartFilter);
-
-    return StreamBuilder<double?>(
-      stream: stream,
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        // For simplicity, let's mock a list of 4-12 points for chart
-        // You can fetch multiple streams and merge later
-        final spots = <FlSpot>[
-          FlSpot(0, snapshot.data ?? 0),
-          FlSpot(1, snapshot.data ?? 0),
-          FlSpot(2, snapshot.data ?? 0),
-          FlSpot(3, snapshot.data ?? 0),
-        ];
-
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: LineChart(
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeInOut,
-            LineChartData(
-              gridData: FlGridData(
-                show: true,
-                drawVerticalLine: true,
-                horizontalInterval: 5000,
-                verticalInterval: 1,
-                getDrawingHorizontalLine: (value) => FlLine(
-                  color: Colors.grey.withOpacity(0.1),
-                  strokeWidth: 1,
-                  dashArray: [5, 5],
-                ),
-                getDrawingVerticalLine: (value) => FlLine(
-                  color: Colors.grey.withOpacity(0.1),
-                  strokeWidth: 1,
-                  dashArray: [5, 5],
-                ),
-              ),
-              titlesData: FlTitlesData(
-                show: true,
-                rightTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                topTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 30,
-                    interval: 1,
-                    getTitlesWidget: (value, meta) {
-                      const style = TextStyle(color: Colors.grey, fontSize: 12);
-                      switch (value.toInt()) {
-                        case 0:
-                          return const Text('W1', style: style);
-                        case 1:
-                          return const Text('W2', style: style);
-                        case 2:
-                          return const Text('W3', style: style);
-                        case 3:
-                          return const Text('W4', style: style);
-                        default:
-                          return Container();
-                      }
-                    },
-                  ),
-                ),
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 5000,
-                    getTitlesWidget: (value, meta) {
-                      if (value == 0) {
-                        return const Text(
-                          '0',
-                          style: TextStyle(color: Colors.grey, fontSize: 12),
-                        );
-                      }
-                      return Text(
-                        '${(value / 1000).toInt()}k',
-                        style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 12,
-                        ),
-                      );
-                    },
-                    reservedSize: 40,
-                  ),
-                ),
-              ),
-              borderData: FlBorderData(show: false),
-              minX: 0,
-              maxX: spots.length - 1.toDouble(),
-              minY: 0,
-              maxY:
-                  (spots.map((e) => e.y).reduce((a, b) => a > b ? a : b) * 1.2),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: spots,
-                  isCurved: true,
-                  color: const Color(0xFF2ECC71),
-                  barWidth: 3,
-                  isStrokeCapRound: true,
-                  dotData: FlDotData(show: false),
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: const Color(0xFF2ECC71).withOpacity(0.15),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -879,69 +553,188 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  ///////////////////////////////////////////////////////////////////
-  Widget _buildSalesChartCard() {
+  String _timeAgo(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inSeconds < 60) {
+      return "just now";
+    } else if (diff.inMinutes < 60) {
+      return "${diff.inMinutes} min ago";
+    } else if (diff.inHours < 24) {
+      return "${diff.inHours} hours ago";
+    } else if (diff.inDays == 1) {
+      return "yesterday";
+    } else {
+      return "${diff.inDays} days ago";
+    }
+  }
+
+  Widget _buildOrderItem(OrderItem order, int count) {
+    Color statusColor = _getStatusColor(order.orderState);
+    IconData statusIcon = _getStatusIcon(order.orderState);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade100),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Sales Over Time',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              RichText(
+                text: TextSpan(
+                  text: "Order:$count  ",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                    fontSize: 14,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: _timeAgo(order.createdAt),
+                      style: TextStyle(
+                        fontWeight: FontWeight.normal,
+                        color: Colors.grey[500],
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                "\$${order.totalPrice.toStringAsFixed(2)}",
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          _buildChartFilterButtons(),
-          const SizedBox(height: 24),
-          SizedBox(height: 250, child: _buildLineChart()),
-        ],
-      ),
-    );
-  }
+          const SizedBox(height: 4),
+          FutureBuilder<String>(
+            future: DashboardServices.getUserName(order.userId),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Text("Loading...");
+              }
 
-  Widget _buildChartFilterButtons() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        spacing: 8,
-        children: [
-          _buildFilterButton(0, 'This Month'),
-          _buildFilterButton(1, 'This Year'),
-          _buildFilterButton(2, 'Last Year'),
-        ],
-      ),
-    );
-  }
+              if (snapshot.hasError) {
+                return const Text("Error");
+              }
 
-  Widget _buildFilterButton(int index, String text) {
-    final isSelected = _selectedChartFilter == index;
-    return InkWell(
-      onTap: () => setState(() => _selectedChartFilter = index),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF2ECC71) : Colors.grey[100],
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.grey[600],
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              final name = snapshot.data ?? "Unknown";
+
+              return Text(
+                name,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              );
+            },
           ),
-        ),
+
+          Text(
+            order.address,
+            style: const TextStyle(fontSize: 16, color: Colors.black),
+          ),
+          for (var item in order.items)
+            Text(
+              "${item["name"]}: ${item["quantity"]}",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: statusColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(statusIcon, size: 14, color: statusColor),
+                    const SizedBox(width: 6),
+                    Text(
+                      order.orderState,
+                      style: TextStyle(
+                        color: statusColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: order.orderState,
+                      icon: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: Colors.grey[400],
+                      ),
+                      isExpanded: true,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
+                      onChanged: (String? newValue) async {
+                        if (_statusOptions.toSet().length ==
+                            _statusOptions.length)
+                          print('Duplicate values found in status options');
+                        if (newValue == null) return;
+                        setState(() {
+                          order.orderState = newValue;
+                        });
+                        await DashboardServices.updateOrderDailyStatus(
+                          id: order.id,
+                          userId: order.userId,
+                          orderState: newValue,
+                        );
+                        await DashboardServices.syncDailyOrderCounts();
+                        if (newValue == "completed") {
+                          await DashboardServices.addToEarnings(
+                            order.totalPrice,
+                          );
+                        }
+                      },
+                      items: _statusOptions
+                          .map<DropdownMenuItem<String>>(
+                            (String value) => DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -1037,7 +830,392 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  //////////////////////////////////////////////////////////
+  Widget buildBestSellingSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Best Selling Items',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Top performing menu items',
+            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 20),
+          StreamBuilder<List<MenuItem>>(
+            stream: DashboardServices.getBestSellers(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              if (snapshot.hasError) {
+                return Center(child: Text('Error loading best sellers'));
+              }
+
+              final data = snapshot.data ?? [];
+              if (data.isEmpty) return Center(child: Text("No Best Sellers"));
+
+              return ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: data.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
+                itemBuilder: (context, index) =>
+                    _buildBestSellerItem(data[index]),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBestSellerItem(MenuItem item) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          item.imageUrl != null
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image.network(
+                    item.imageUrl!,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 60,
+                      height: 60,
+                      color: Colors.grey[300],
+                      child: const Icon(Icons.fastfood, color: Colors.grey),
+                    ),
+                  ),
+                )
+              : Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4CAF50).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(
+                    Icons.restaurant_menu,
+                    color: Color(0xFF4CAF50),
+                    size: 24,
+                  ),
+                ),
+
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      item.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    // if (item.isTop) ...[
+                    //   const SizedBox(width: 6),
+                    //   const Icon(Icons.star, color: Colors.orange, size: 16),
+                    // ],
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  item.category,
+                  style: TextStyle(color: Colors.grey[600], fontSize: 13),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Text(
+                      item.totalOrderCount.toString(),
+                      style: TextStyle(
+                        color: Colors.grey[800],
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    // Text(' • ', style: TextStyle(color: Colors.grey[400])),
+                    // Text(
+                    //   item.revenue,
+                    //   style: TextStyle(
+                    //     color: Colors.grey[800],
+                    //     fontSize: 13,
+                    //     fontWeight: FontWeight.w500,
+                    //   ),
+                    // ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Row(
+            children: [
+              // const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
+              // const SizedBox(width: 4),
+              // Text(
+              //   item.rating.toString(),
+              //   style: const TextStyle(
+              //     fontWeight: FontWeight.bold,
+              //     fontSize: 15,
+              //   ),
+              // ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  ////////////////////////////////////////////////
+  //////////////coming soon features//////////////
+  ////////////////////////////////////////////////
+
+  // --- Stats and Charts (Unchanged) ---
+  // List<FlSpot> _getChartData() {
+  //   switch (_selectedChartFilter) {
+  //     case 0:
+  //       return const [
+  //         FlSpot(0, 12000),
+  //         FlSpot(1, 14500),
+  //         FlSpot(2, 17500),
+  //         FlSpot(3, 16500),
+  //       ];
+  //     case 1:
+  //       return const [
+  //         FlSpot(0, 15000),
+  //         FlSpot(1, 18500),
+  //         FlSpot(2, 22000),
+  //         FlSpot(3, 23500),
+  //       ];
+  //     case 2:
+  //       return const [
+  //         FlSpot(0, 10000),
+  //         FlSpot(1, 16000),
+  //         FlSpot(2, 13000),
+  //         FlSpot(3, 11000),
+  //       ];
+  //     default:
+  //       return const [];
+  //   }
+  // }
+
+  // Widget _buildLineChart() {
+  //   final stream = DashboardServices.getEarningsStream(_selectedChartFilter);
+
+  //   return StreamBuilder<double?>(
+  //     stream: stream,
+  //     builder: (context, snapshot) {
+  //       if (!snapshot.hasData) {
+  //         return const Center(child: CircularProgressIndicator());
+  //       }
+
+  //       // For simplicity, let's mock a list of 4-12 points for chart
+  //       // You can fetch multiple streams and merge later
+  //       final spots = <FlSpot>[
+  //         FlSpot(0, snapshot.data ?? 0),
+  //         FlSpot(1, snapshot.data ?? 0),
+  //         FlSpot(2, snapshot.data ?? 0),
+  //         FlSpot(3, snapshot.data ?? 0),
+  //       ];
+
+  //       return AnimatedSwitcher(
+  //         duration: const Duration(milliseconds: 300),
+  //         child: LineChart(
+  //           duration: const Duration(milliseconds: 250),
+  //           curve: Curves.easeInOut,
+  //           LineChartData(
+  //             gridData: FlGridData(
+  //               show: true,
+  //               drawVerticalLine: true,
+  //               horizontalInterval: 5000,
+  //               verticalInterval: 1,
+  //               getDrawingHorizontalLine: (value) => FlLine(
+  //                 color: Colors.grey.withOpacity(0.1),
+  //                 strokeWidth: 1,
+  //                 dashArray: [5, 5],
+  //               ),
+  //               getDrawingVerticalLine: (value) => FlLine(
+  //                 color: Colors.grey.withOpacity(0.1),
+  //                 strokeWidth: 1,
+  //                 dashArray: [5, 5],
+  //               ),
+  //             ),
+  //             titlesData: FlTitlesData(
+  //               show: true,
+  //               rightTitles: AxisTitles(
+  //                 sideTitles: SideTitles(showTitles: false),
+  //               ),
+  //               topTitles: AxisTitles(
+  //                 sideTitles: SideTitles(showTitles: false),
+  //               ),
+  //               bottomTitles: AxisTitles(
+  //                 sideTitles: SideTitles(
+  //                   showTitles: true,
+  //                   reservedSize: 30,
+  //                   interval: 1,
+  //                   getTitlesWidget: (value, meta) {
+  //                     const style = TextStyle(color: Colors.grey, fontSize: 12);
+  //                     switch (value.toInt()) {
+  //                       case 0:
+  //                         return const Text('W1', style: style);
+  //                       case 1:
+  //                         return const Text('W2', style: style);
+  //                       case 2:
+  //                         return const Text('W3', style: style);
+  //                       case 3:
+  //                         return const Text('W4', style: style);
+  //                       default:
+  //                         return Container();
+  //                     }
+  //                   },
+  //                 ),
+  //               ),
+  //               leftTitles: AxisTitles(
+  //                 sideTitles: SideTitles(
+  //                   showTitles: true,
+  //                   interval: 5000,
+  //                   getTitlesWidget: (value, meta) {
+  //                     if (value == 0) {
+  //                       return const Text(
+  //                         '0',
+  //                         style: TextStyle(color: Colors.grey, fontSize: 12),
+  //                       );
+  //                     }
+  //                     return Text(
+  //                       '${(value / 1000).toInt()}k',
+  //                       style: const TextStyle(
+  //                         color: Colors.grey,
+  //                         fontSize: 12,
+  //                       ),
+  //                     );
+  //                   },
+  //                   reservedSize: 40,
+  //                 ),
+  //               ),
+  //             ),
+  //             borderData: FlBorderData(show: false),
+  //             minX: 0,
+  //             maxX: spots.length - 1.toDouble(),
+  //             minY: 0,
+  //             maxY:
+  //                 (spots.map((e) => e.y).reduce((a, b) => a > b ? a : b) * 1.2),
+  //             lineBarsData: [
+  //               LineChartBarData(
+  //                 spots: spots,
+  //                 isCurved: true,
+  //                 color: const Color(0xFF2ECC71),
+  //                 barWidth: 3,
+  //                 isStrokeCapRound: true,
+  //                 dotData: FlDotData(show: false),
+  //                 belowBarData: BarAreaData(
+  //                   show: true,
+  //                   color: const Color(0xFF2ECC71).withOpacity(0.15),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
+  // Widget _buildSalesChartCard() {
+  //   return Container(
+  //     padding: const EdgeInsets.all(16),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(16),
+  //       border: Border.all(color: Colors.grey.shade200),
+  //       boxShadow: [
+  //         BoxShadow(
+  //           color: Colors.black.withOpacity(0.02),
+  //           blurRadius: 10,
+  //           offset: const Offset(0, 4),
+  //         ),
+  //       ],
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         const Text(
+  //           'Sales Over Time',
+  //           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+  //         ),
+  //         const SizedBox(height: 16),
+  //         _buildChartFilterButtons(),
+  //         const SizedBox(height: 24),
+  //         SizedBox(height: 250, child: _buildLineChart()),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  // Widget _buildChartFilterButtons() {
+  //   return SingleChildScrollView(
+  //     scrollDirection: Axis.horizontal,
+  //     child: Row(
+  //       spacing: 8,
+  //       children: [
+  //         _buildFilterButton(0, 'This Month'),
+  //         _buildFilterButton(1, 'This Year'),
+  //         _buildFilterButton(2, 'Last Year'),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+  // Widget _buildFilterButton(int index, String text) {
+  //   final isSelected = _selectedChartFilter == index;
+  //   return InkWell(
+  //     onTap: () => setState(() => _selectedChartFilter = index),
+  //     child: Container(
+  //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  //       decoration: BoxDecoration(
+  //         color: isSelected ? const Color(0xFF2ECC71) : Colors.grey[100],
+  //         borderRadius: BorderRadius.circular(8),
+  //       ),
+  //       child: Text(
+  //         text,
+  //         style: TextStyle(
+  //           color: isSelected ? Colors.white : Colors.grey[600],
+  //           fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+
   // --- User Growth Section (Unchanged) ---
   // Widget _buildUserGrowthCard() {
   //   return Container(
