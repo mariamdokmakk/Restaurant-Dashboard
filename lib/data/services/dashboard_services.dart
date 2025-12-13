@@ -52,8 +52,12 @@ class DashboardServices {
         .snapshots();
 
     return queryStream.map(
-      (snapshot) =>
-          snapshot.docs.map((doc) => MenuItem.fromMap(doc.data())).toList(),
+      (snapshot) => snapshot.docs
+          .map((doc) => MenuItem.fromMap(doc.data()))
+          .where((element) {
+            return element.totalOrderCount != 0;
+          })
+          .toList(),
     );
   }
 
@@ -123,10 +127,7 @@ class DashboardServices {
           order.createdAt.isBefore(endOfDay)) {
         if (order.orderState == "pending") pending++;
         if (order.orderState == "canceled") canceled++;
-        if (order.orderState == "completed") {
-          completed++;
-          await _addtoTotalOrderCount(order);
-        }
+        if (order.orderState == "completed") completed++;
       }
     }
 
@@ -249,13 +250,13 @@ class DashboardServices {
         }, SetOptions(merge: true));
   }
 
-  static Future<void> _addtoTotalOrderCount(OrderItem order) async {
+  static Future<void> addtoTotalOrderCount(OrderItem order) async {
     for (var item in order.items) {
       await _db
           .collection(_restaurantCollection)
           .doc(_restaurantId)
           .collection(_menuCollection)
-          .doc(item["menuItemId"])
+          .doc(item["id"])
           .update({"totalOrderCount": FieldValue.increment(item["quantity"])});
     }
   }

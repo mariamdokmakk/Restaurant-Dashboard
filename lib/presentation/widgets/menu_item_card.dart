@@ -17,7 +17,7 @@ class MenuItemCard extends StatelessWidget {
         border: Border.all(color: Colors.grey[200]!),
       ),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             width: 50,
