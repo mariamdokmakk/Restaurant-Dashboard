@@ -7,22 +7,6 @@ class MenuService {
   static final _db = FirebaseFirestore.instance;
   static const String _restaurantCollection = "Restaurant";
   static const String _restaurantId = "UFrCk69XBDrXFMOCuMvB";
-  // static final cloudinary = CloudinaryPublic(
-  //   'dbyq4bc3', //Cloud name
-  //   'Restaurant_Dashboard', //Upload Preset name
-  // );
-
-  // static Future<String> uploadImageToCloudinary(File image) async {
-  //   final response = await cloudinary.uploadFile(
-  //     CloudinaryFile.fromFile(
-  //       image.path,
-  //       resourceType: CloudinaryResourceType.Image,
-  //       folder: "restaurant_menu",
-  //     ),
-  //   );
-
-  //   return response.secureUrl;
-  // }
 
   static Future<void> addMenuItem({
     required String name,
@@ -31,22 +15,26 @@ class MenuService {
     required num price,
     String? imageUrl,
   }) async {
+    final existing = await _db
+        .collection(_restaurantCollection)
+        .doc(_restaurantId)
+        .collection("menu")
+        .where("name", isEqualTo: name.trim())
+        .limit(1)
+        .get();
+
+    if (existing.docs.isNotEmpty) {
+      throw Exception("Item with this name already exists");
+    }
+
     final docRef = _db
         .collection(_restaurantCollection)
         .doc(_restaurantId)
         .collection("menu")
         .doc();
 
-    final id = docRef.id;
-
-    // String imageUrl = "";
-
-    // if (imageFile != null) {
-    //   imageUrl = await uploadImageToCloudinary(imageFile);
-    // }
-
     final item = MenuItem(
-      id: id,
+      id: docRef.id,
       name: name,
       description: description,
       category: category,

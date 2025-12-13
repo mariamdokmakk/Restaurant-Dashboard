@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class OffersItem {
   String id;
+  String title;
   String category;
   num discountPercent;
   bool isActive;
@@ -10,6 +12,7 @@ class OffersItem {
 
   OffersItem({
     required this.id,
+    required this.title,
     required this.category,
     required this.discountPercent,
     required this.isActive,
@@ -20,6 +23,7 @@ class OffersItem {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'title': title,
       'category': category,
       'discountPercent': discountPercent,
       'isActive': isActive,
@@ -31,6 +35,7 @@ class OffersItem {
   factory OffersItem.fromMap(Map<String, dynamic> map) {
     return OffersItem(
       id: map['id'] ?? '',
+      title: map['title'] ?? '',
       category: map['category'] ?? '',
       discountPercent: map['discountPercent'] ?? 0,
       isActive: map['isActive'] ?? false,

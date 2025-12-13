@@ -22,17 +22,8 @@ class _AdminLayoutState extends State<AdminLayout> {
   final List<Widget> _screens = [
     const DashboardScreen(),
     const MenuManagementScreen(),
-    // const OffersScreen(),
+    const OffersScreen(),
   ];
-
-  // @override
-  // void initState() {
-  //   super.initState();
-
-  //   WidgetsBinding.instance.addPostFrameCallback((_) async {
-  //     await DashboardServices.syncDailyOrderCounts();
-  //   });
-  // }
 
   @override
   void initState() {
