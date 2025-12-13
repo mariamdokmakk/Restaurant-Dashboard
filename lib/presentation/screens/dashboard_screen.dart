@@ -109,7 +109,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
         return BarChart(
           BarChartData(
             alignment: BarChartAlignment.spaceAround,
-            maxY: 60,
+            maxY: 20,
+            minY: 0,
+            baselineY: 10,
             barTouchData: BarTouchData(
               enabled: true,
               touchCallback: (FlTouchEvent event, barTouchResponse) {
@@ -640,15 +642,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               );
             },
           ),
-
-          Text(
-            order.address,
-            style: const TextStyle(fontSize: 16, color: Colors.black),
-          ),
+          Text(order.address, style: const TextStyle(color: Colors.black)),
+          Divider(),
           for (var item in order.items)
             Text(
               "${item["name"]}: ${item["quantity"]}",
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
           const SizedBox(height: 12),
           Row(
@@ -718,6 +717,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           await DashboardServices.addToEarnings(
                             order.totalPrice,
                           );
+                          await DashboardServices.addtoTotalOrderCount(order);
                         }
                       },
                       items: _statusOptions
@@ -787,7 +787,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 separatorBuilder: (context, index) =>
                     const SizedBox(height: 12),
                 itemBuilder: (context, index) =>
-                    _buildOrderItem(data[index], 0),
+                    _buildOrderItem(data[index], index + 1),
               );
             },
           ),

@@ -300,7 +300,6 @@ class CreateOfferCard extends StatelessWidget {
     final title = titleController.text.isEmpty
         ? 'Offer Title'
         : titleController.text;
-
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

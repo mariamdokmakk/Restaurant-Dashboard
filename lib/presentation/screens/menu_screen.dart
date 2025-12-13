@@ -108,7 +108,6 @@ class _MenuManagementScreenState extends State<MenuManagementScreen> {
         }
 
         final data = snapshot.data ?? [];
-        if (data.isEmpty) return Center(child: Text("No menu items"));
 
         return SingleChildScrollView(
           padding: const EdgeInsets.all(16.0),

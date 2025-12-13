@@ -59,7 +59,7 @@ class _OffersScreenState extends State<OffersScreen> {
         validFrom: _validFrom!,
         validTo: _validTo!,
       );
-      setState(() {});
+      setState((){});
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Offer created successfully')),
@@ -163,7 +163,6 @@ class _OffersScreenState extends State<OffersScreen> {
               }
 
               final data = snapshot.data ?? [];
-              if (data.isEmpty) return Center(child: Text("No Offers"));
 
               return SingleChildScrollView(
                 child: Column(
