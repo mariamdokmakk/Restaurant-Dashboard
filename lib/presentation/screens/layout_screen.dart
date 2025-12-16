@@ -59,63 +59,56 @@ class _AdminLayoutState extends State<AdminLayout> {
     return AppBar(
       backgroundColor: Colors.white,
       elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.menu, color: Colors.black),
-        onPressed: () {},
-      ),
+      // leading: IconButton(
+      //   icon: const Icon(Icons.menu, color: Colors.black),
+      //   onPressed: () {},
+      // ),
       title: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(4),
-            decoration: const BoxDecoration(
-              color: Color(0xFF2ECC71),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.restaurant_menu,
-              color: Colors.white,
-              size: 20,
-            ),
+            child: Image.asset("assets/logo_img.png", width: 70),
           ),
           const SizedBox(width: 8),
           const Text(
-            'FoodHub',
+            'To The Bone',
             style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
           ),
         ],
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.search, color: Colors.black),
-          onPressed: () {},
-        ),
-        Stack(
-          alignment: Alignment.topRight,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.notifications_none, color: Colors.black),
-              onPressed: () {},
-            ),
-            Positioned(
-              right: 8,
-              top: 8,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.orange,
-                  shape: BoxShape.circle,
-                ),
-                constraints: const BoxConstraints(minWidth: 8, minHeight: 8),
-              ),
-            ),
-          ],
-        ),
-        IconButton(
-          icon: const Icon(Icons.account_circle_outlined, color: Colors.green),
-          onPressed: () {},
-        ),
-        const SizedBox(width: 8),
-      ],
+      // actions: [
+      //   IconButton(
+      //     icon: const Icon(Icons.search, color: Colors.black),
+      //     onPressed: () {},
+      //   ),
+      //   Stack(
+      //     alignment: Alignment.topRight,
+      //     children: [
+      //       IconButton(
+      //         icon: const Icon(Icons.notifications_none, color: Colors.black),
+      //         onPressed: () {},
+      //       ),
+      //       Positioned(
+      //         right: 8,
+      //         top: 8,
+      //         child: Container(
+      //           padding: const EdgeInsets.all(4),
+      //           decoration: const BoxDecoration(
+      //             color: Colors.orange,
+      //             shape: BoxShape.circle,
+      //           ),
+      //           constraints: const BoxConstraints(minWidth: 8, minHeight: 8),
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      //   IconButton(
+      //     icon: const Icon(Icons.account_circle_outlined, color: Colors.green),
+      //     onPressed: () {},
+      //   ),
+      //   const SizedBox(width: 8),
+      // ],
     );
   }
 

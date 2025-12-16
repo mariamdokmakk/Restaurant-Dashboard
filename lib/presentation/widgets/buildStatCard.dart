@@ -43,7 +43,7 @@ Widget buildStatCard({
         Text(
           value.toString(),
           style: const TextStyle(
-            fontSize: 24,
+            fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),
